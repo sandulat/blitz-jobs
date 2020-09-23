@@ -14,6 +14,8 @@ services:
         value: SENDGRID
       - key: MAIL_SENDGRID_KEY
         sync: false
+      - key: SESSION_SECRET_KEY
+        sync: false
       - key: DATABASE_URL
         fromDatabase:
           name: blitzapp-db
