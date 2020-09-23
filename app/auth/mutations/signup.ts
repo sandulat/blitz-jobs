@@ -1,22 +1,35 @@
 import db from "db"
-import { SessionContext } from "blitz"
-import { hashPassword } from "app/auth/auth-utils"
+import { ensureUserEmailNotUsed, hashPassword } from "app/auth/auth-utils"
 import { SignupInput, SignupInputType } from "app/auth/validations"
+import { nanoid } from "nanoid"
+import { userConfirmationNotification } from "../notifications/userConfirmation"
 
-export default async function signup(
-  input: SignupInputType,
-  ctx: { session?: SessionContext } = {}
-) {
-  // This throws an error if input is invalid
+export default async function signup(input: SignupInputType) {
   const { email, password } = SignupInput.parse(input)
 
+  const formattedEmail = email.toLowerCase()
+
+  await ensureUserEmailNotUsed(formattedEmail)
+
   const hashedPassword = await hashPassword(password)
+
   const user = await db.user.create({
-    data: { email, hashedPassword, role: "user" },
+    data: { email: formattedEmail, hashedPassword, role: "USER" },
     select: { id: true, name: true, email: true, role: true },
   })
 
-  await ctx.session!.create({ userId: user.id, roles: [user.role] })
+  const confirmationToken = nanoid(100)
 
-  return user
+  await userConfirmationNotification.notify(user, { token: confirmationToken })
+
+  await db.userConfirmationToken.create({
+    data: {
+      token: confirmationToken,
+      user: {
+        connect: {
+          id: user.id,
+        },
+      },
+    },
+  })
 }

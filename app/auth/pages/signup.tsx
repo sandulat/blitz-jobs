@@ -1,14 +1,18 @@
-import React from "react"
-import { useRouter, BlitzPage } from "blitz"
+import React, { useState } from "react"
+import { BlitzPage, GetServerSideProps } from "blitz"
 import Layout from "app/layouts/Layout"
 import { SignupForm } from "app/auth/components/SignupForm"
+import { EmailConfirmationNotice } from "../components/EmailConfirmationNotice"
+import { ensureUnauthenticated } from "app/guards/ensureUnauthenticated"
+
+export const getServerSideProps: GetServerSideProps = ensureUnauthenticated
 
 const SignupPage: BlitzPage = () => {
-  const router = useRouter()
+  const [signedUp, setSignedUp] = useState(false)
 
   return (
     <div>
-      <SignupForm onSuccess={() => router.push("/")} />
+      {!signedUp ? <SignupForm onSuccess={() => setSignedUp(true)} /> : <EmailConfirmationNotice />}
     </div>
   )
 }

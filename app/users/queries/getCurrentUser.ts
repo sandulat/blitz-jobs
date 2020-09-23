@@ -1,6 +1,13 @@
 import db from "db"
 import { SessionContext } from "blitz"
 
+export type CurrentUser = {
+  id: number
+  name: string | null
+  email: string
+  role: string
+}
+
 export default async function getCurrentUser(_ = null, ctx: { session?: SessionContext } = {}) {
   if (!ctx.session?.userId) return null
 

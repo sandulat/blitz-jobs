@@ -1,7 +1,9 @@
-import { AppProps, ErrorComponent, useRouter } from "blitz"
+import { AppProps, AuthenticationError, AuthorizationError, ErrorComponent, useRouter } from "blitz"
 import { ErrorBoundary, FallbackProps } from "react-error-boundary"
 import { queryCache } from "react-query"
 import LoginForm from "app/auth/components/LoginForm"
+
+import "app/styles/index.css"
 
 export default function App({ Component, pageProps }: AppProps) {
   const getLayout = Component.getLayout || ((page) => page)
@@ -12,8 +14,6 @@ export default function App({ Component, pageProps }: AppProps) {
       FallbackComponent={RootErrorFallback}
       resetKeys={[router.asPath]}
       onReset={() => {
-        // This ensures the Blitz useQuery hooks will automatically refetch
-        // data any time you reset the error boundary
         queryCache.resetErrorBoundaries()
       }}
     >
@@ -23,9 +23,9 @@ export default function App({ Component, pageProps }: AppProps) {
 }
 
 function RootErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
-  if (error?.name === "AuthenticationError") {
+  if (error?.name === AuthenticationError.name) {
     return <LoginForm onSuccess={resetErrorBoundary} />
-  } else if (error?.name === "AuthorizationError") {
+  } else if (error?.name === AuthorizationError.name) {
     return (
       <ErrorComponent
         statusCode={(error as any).statusCode}

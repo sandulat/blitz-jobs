@@ -1,58 +1,73 @@
+import { Mutator } from "final-form"
+import { Mutators } from "final-form-arrays"
 import React, { ReactNode, PropsWithoutRef } from "react"
 import { Form as FinalForm, FormProps as FinalFormProps } from "react-final-form"
 import * as z from "zod"
+import { Alert } from "./Alert"
+import { Button } from "./Button"
 export { FORM_ERROR } from "final-form"
 
 type FormProps<FormValues> = {
-  /** All your form fields */
   children: ReactNode
-  /** Text to display in the submit button */
   submitText: string
   onSubmit: FinalFormProps<FormValues>["onSubmit"]
   initialValues?: FinalFormProps<FormValues>["initialValues"]
   schema?: z.ZodType<any, any>
+  mutators?: { [key: string]: Mutator<FormValues> }
 } & Omit<PropsWithoutRef<JSX.IntrinsicElements["form"]>, "onSubmit">
+
+const errorMap: z.ZodErrorMap = (error, ctx) => {
+  if (error.message) return { message: error.message }
+
+  switch (error.code) {
+    case z.ZodErrorCode.invalid_type:
+      if (error.expected === "string" && error.received === "undefined") {
+        return { message: "This field is required" }
+      }
+  }
+
+  return { message: ctx.defaultError }
+}
 
 export function Form<FormValues extends Record<string, unknown>>({
   children,
   submitText,
   schema,
   initialValues,
+  mutators,
   onSubmit,
   ...props
 }: FormProps<FormValues>) {
   return (
     <FinalForm<FormValues>
       initialValues={initialValues}
+      mutators={mutators}
       validate={(values) => {
         if (!schema) return
         try {
-          schema.parse(values)
+          schema.parse(values, { errorMap })
         } catch (error) {
-          return error.formErrors.fieldErrors
+          if (error instanceof z.ZodError) {
+            return error.formErrors.fieldErrors
+          }
         }
       }}
       onSubmit={onSubmit}
       render={({ handleSubmit, submitting, submitError }) => (
         <form onSubmit={handleSubmit} className="form" {...props}>
-          {/* Form fields supplied as children are rendered here */}
-          {children}
-
           {submitError && (
-            <div role="alert" style={{ color: "red" }}>
+            <Alert variant="danger" className="mb-4">
               {submitError}
-            </div>
+            </Alert>
           )}
 
-          <button type="submit" disabled={submitting}>
-            {submitText}
-          </button>
+          {children}
 
-          <style global jsx>{`
-            .form > * + * {
-              margin-top: 1rem;
-            }
-          `}</style>
+          <div className="mt-6">
+            <Button type="submit" full disabled={submitting}>
+              {submitText}
+            </Button>
+          </div>
         </form>
       )}
     />

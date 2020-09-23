@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 datasource db {
-  provider = ["sqlite", "postgres"]
+  provider = ["postgresql"]
   url      = env("DATABASE_URL")
 }
 
@@ -12,15 +12,50 @@ generator client {
 
 // --------------------------------------
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
 model User {
   id             Int       @default(autoincrement()) @id
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+  confirmedAt    DateTime?
   name           String?
   email          String    @unique
   hashedPassword String?
-  role           String    @default("user")
+  role           UserRole  @default(USER)
   sessions       Session[]
+}
+
+model UserConfirmationToken {
+  id             Int       @default(autoincrement()) @id
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  token          String    @unique
+  user           User      @relation(fields: [userId], references: [id])
+  userId         Int
+}
+
+enum JobType {
+  FULLTIME
+  PARTTIME
+}
+
+model Job {
+  id             Int       @default(autoincrement()) @id
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  publishedAt    DateTime?
+  company        String
+  position       String
+  tags           Json
+  type           JobType   @default(FULLTIME)
+  location       String
+  url            String
+  user           User      @relation(fields: [userId], references: [id])
+  userId         Int
 }
 
 model Session {
