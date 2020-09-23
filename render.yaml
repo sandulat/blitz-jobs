@@ -9,7 +9,7 @@ services:
       - key: NODE_ENV
         value: production
       - key: APP_URL
-        value: http://blitz-jobs.com/
+        value: https://blitz-jobs.com/
       - key: MAIL_DRIVER
         value: SENDGRID
       - key: MAIL_SENDGRID_KEY
