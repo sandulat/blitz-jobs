@@ -1,5 +1,5 @@
 import React, { useRef } from "react"
-import { AuthenticationError, Link } from "blitz"
+import { Link } from "blitz"
 import { TextField } from "app/components/TextField"
 import { Form, FORM_ERROR } from "app/components/Form"
 import login from "app/auth/mutations/login"
@@ -10,7 +10,6 @@ import { Logo } from "app/components/Logo"
 import { AuthHeading } from "./AuthHeading"
 import { AuthWrapper } from "./AuthWrapper"
 import { AuthSubheading } from "./AuthSubheading"
-import { UnconfirmedEmailError } from "app/errors/unconfirmedEmail"
 
 type LoginFormProps = {
   onSuccess?: () => void
@@ -56,10 +55,10 @@ export const LoginForm = (props: LoginFormProps) => {
                 })
 
                 switch (error.name) {
-                  case AuthenticationError.name: {
+                  case "AuthenticationError": {
                     return { [FORM_ERROR]: "Sorry, those credentials are invalid." }
                   }
-                  case UnconfirmedEmailError.name: {
+                  case "UnconfirmedEmailError": {
                     return { [FORM_ERROR]: "Please confirm your email first." }
                   }
                   default: {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { AuthorizationError, BlitzPage, GetServerSideProps, useParam, useRouter } from "blitz"
+import { BlitzPage, GetServerSideProps, useParam, useRouter } from "blitz"
 import Layout from "app/layouts/Layout"
 import { AuthWrapper } from "app/auth/components/AuthWrapper"
 import { Logo } from "app/components/Logo"
@@ -24,7 +24,7 @@ const ConfirmEmail: BlitzPage = () => {
 
         router.push("/")
       } catch (e) {
-        if (e.name === AuthorizationError.name) {
+        if (e.name === "AuthorizationError") {
           setUnauthorized(true)
         }
       }

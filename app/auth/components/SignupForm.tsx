@@ -7,7 +7,6 @@ import { SignupInput, SignupInputType } from "app/auth/validations"
 import { Card } from "app/components/Card"
 import { StyledLink } from "app/components/StyledLink"
 import { Logo } from "app/components/Logo"
-import { EmailUsedError } from "app/errors/emailUsed"
 import { AuthHeading } from "./AuthHeading"
 import { AuthWrapper } from "./AuthWrapper"
 import { AuthSubheading } from "./AuthSubheading"
@@ -58,7 +57,7 @@ export const SignupForm = (props: SignupFormProps) => {
                 })
 
                 switch (error.name) {
-                  case EmailUsedError.name: {
+                  case "EmailUsedError": {
                     return { [FORM_ERROR]: `The email ${values.email} is already being used.` }
                   }
                   default: {
