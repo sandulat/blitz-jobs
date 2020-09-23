@@ -16,6 +16,10 @@ services:
         sync: false
       - key: SESSION_SECRET_KEY
         sync: false
+      - key: MAIL_FROM_EMAIL
+        sync: false
+      - key: MAIL_FROM_NAME
+        sync: false
       - key: DATABASE_URL
         fromDatabase:
           name: blitzapp-db
